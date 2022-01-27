@@ -1,25 +1,40 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from "react";
+import sanityClient from "./client";
 
-function App() {
+const App = () => {
+  const [postsState, setPostsState] = useState([]);
+
+  const fetchPostsFromSanity = async () => {
+    try {
+      const posts = await sanityClient.fetch(`*[_type == "post"]`);
+      setPostsState(posts);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchPostsFromSanity();
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+    <div>
+      <h1>POSTS</h1>
+      {postsState.map((post) => (
+        <div
+          key={post._id}
+          style={{
+            marginBottom: "20px",
+            border: "2px solid black",
+            padding: "10px",
+          }}
         >
-          Learn React
-        </a>
-      </header>
+          <div>{post.title}</div>
+          <div>{post._createdAt}</div>
+        </div>
+      ))}
     </div>
   );
-}
+};
 
 export default App;
