@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
+
 import sanityClient from "./client";
 
 const App = () => {
   const [postsState, setPostsState] = useState([]);
+  const [contributorsState, setContributorsState] = useState([]);
 
   const fetchPostsFromSanity = async () => {
     try {
@@ -13,8 +15,23 @@ const App = () => {
     }
   };
 
+  const fetchContributorsFromSanity = async () => {
+    try {
+      const contributors = await sanityClient.fetch(
+        `*[_type == "contributor"] {
+          name,
+          profilePicture
+        }`
+      );
+      setContributorsState(contributors);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   useEffect(() => {
     fetchPostsFromSanity();
+    fetchContributorsFromSanity();
   }, []);
 
   return (
@@ -33,6 +50,17 @@ const App = () => {
           <div>{post._createdAt}</div>
         </div>
       ))}
+      <h1>CONTRIBUTORS (custom schema test)</h1>
+      {contributorsState.map((contributor) => {
+        return (
+          <div key={contributor._id}>
+            <div>{contributor.name}</div>
+            <div>
+              <img src={contributor.profilePicture._upload.previewImage} />
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 };
